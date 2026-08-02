@@ -1,0 +1,7 @@
+:root { font-family: "Segoe UI", system-ui, sans-serif; color:#1f1f1f; background:#1473bd; font-synthesis:none; text-rendering:optimizeLegibility; }
+* { box-sizing:border-box; }
+html,body,#app { margin:0; min-width:320px; min-height:100%; }
+body { min-height:100vh; overflow-x:hidden; }
+button,input { font:inherit; }
+button { cursor:pointer; }
+::selection { background:rgba(0,120,215,.25); }
