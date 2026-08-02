@@ -9,12 +9,14 @@ const props = defineProps({
   gameOver: Boolean,
 });
 
-const emit = defineEmits(['update:score', 'update:time']);
+const emit = defineEmits(['match', 'selection-change']);
 const apples = ref([]);
 const appleRefs = ref([]);
 const selecting = ref(false);
 const dragBoxStyle = ref({ display: 'none' });
 const start = ref({ x: 0, y: 0 });
+const selectionSum = ref(0);
+const selectionCount = ref(0);
 
 watch(() => props.initialApples, (items) => {
   apples.value = [...items];
@@ -31,6 +33,8 @@ const onPointerDown = (event) => {
   start.value = { x: event.clientX, y: event.clientY };
   selecting.value = true;
   apples.value.forEach((item) => { item.selected = false; });
+  selectionSum.value = 0;
+  selectionCount.value = 0;
 };
 
 const onPointerMove = (event) => {
@@ -52,6 +56,11 @@ const onPointerMove = (event) => {
     const cy = rect.top + rect.height / 2;
     apples.value[index].selected = cx >= x && cx <= x + width && cy >= y && cy <= y + height;
   });
+
+  const selected = apples.value.filter((item) => item.selected && !item.hidden);
+  selectionSum.value = selected.reduce((total, item) => total + item.number, 0);
+  selectionCount.value = selected.length;
+  emit('selection-change', { sum: selectionSum.value, count: selectionCount.value });
 };
 
 const onPointerUp = () => {
@@ -62,11 +71,20 @@ const onPointerUp = () => {
   const selected = apples.value.filter((item) => item.selected && !item.hidden);
   const sum = selected.reduce((total, item) => total + item.number, 0);
   if (sum === 10) {
-    emit('update:score', selected.length * 10);
-    emit('update:time', 1);
     selected.forEach((item) => { item.hidden = true; });
   }
+  if (selected.length) {
+    emit('match', {
+      valid: sum === 10,
+      sum,
+      count: selected.length,
+      remaining: apples.value.filter((item) => !item.hidden).length,
+    });
+  }
   apples.value.forEach((item) => { item.selected = false; });
+  selectionSum.value = 0;
+  selectionCount.value = 0;
+  emit('selection-change', { sum: 0, count: 0 });
 };
 
 onMounted(() => {
@@ -83,6 +101,9 @@ onBeforeUnmount(() => {
 <template>
   <div class="file-grid-wrapper" @pointerdown="onPointerDown">
     <div class="drag-box" :style="dragBoxStyle"></div>
+    <div v-if="selecting && selectionCount" :class="['sum-badge', { ready: selectionSum === 10, over: selectionSum > 10 }]">
+      {{ selectionSum }} <small>/ 10</small>
+    </div>
     <div class="file-grid" :style="{ gridTemplateColumns: `repeat(${cols}, 82px)` }">
       <div
         v-for="(apple, index) in apples"
@@ -107,6 +128,8 @@ onBeforeUnmount(() => {
   z-index: 1000;
   pointer-events: none;
 }
+.sum-badge { position:fixed; z-index:1001; right:24px; bottom:48px; min-width:72px; padding:9px 13px; border:1px solid #777; border-radius:3px; background:#fff; box-shadow:0 5px 18px rgba(0,0,0,.2); color:#333; font-size:18px; font-weight:700; text-align:center; pointer-events:none; }
+.sum-badge small { color:#888; font-size:11px; font-weight:400; }.sum-badge.ready { border-color:#168342; color:#168342; background:#f1fff5; }.sum-badge.over { border-color:#c42b1c; color:#c42b1c; background:#fff4f2; }
 @media (max-width: 760px) {
   .file-grid { grid-template-columns: repeat(3, 82px) !important; justify-content: center; padding-inline: 8px; }
 }

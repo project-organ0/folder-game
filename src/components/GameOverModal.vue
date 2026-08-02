@@ -1,5 +1,5 @@
 <script setup>
-defineProps({ modelValue: String, score: Number });
+defineProps({ modelValue: String, score: Number, clearedCount: Number, completed: Boolean });
 defineEmits(['update:modelValue', 'confirm', 'skip']);
 </script>
 
@@ -8,8 +8,8 @@ defineEmits(['update:modelValue', 'confirm', 'skip']);
     <div class="dialog" role="dialog" aria-modal="true">
       <div class="dialog-icon">🗑️</div>
       <div>
-        <h2>파일 정리가 완료되었습니다</h2>
-        <p>{{ score / 10 }}개 폴더를 정리하고 {{ (score * 12.4).toFixed(1) }}MB의 공간을 확보했습니다.</p>
+        <h2>{{ completed ? '모든 파일을 정리했습니다!' : '퇴근 시간이 되었습니다' }}</h2>
+        <p>{{ clearedCount }}개 폴더를 정리하고 {{ (clearedCount * 12.4).toFixed(1) }}MB의 공간을 확보했습니다.<br><b>최종 점수 {{ score.toLocaleString() }}점</b></p>
         <label>작업자 이름</label>
         <input :value="modelValue" placeholder="이름 입력 (선택)" @input="$emit('update:modelValue', $event.target.value)" />
         <div class="actions"><button @click="$emit('confirm')">확인</button><button class="secondary" @click="$emit('skip')">기록 없이 종료</button></div>

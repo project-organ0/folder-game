@@ -54,12 +54,14 @@ const onAnimationEnd = () => {
   background: rgba(0, 120, 215, 0.16);
   border-color: rgba(0, 120, 215, 0.48);
 }
+.file-item.selected .folder-icon { transform:translateY(-2px); }
 
 .folder-icon {
   position: relative;
   width: 42px;
   height: 34px;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
+  transition:transform .12s ease;
 }
 
 .folder-tab {
