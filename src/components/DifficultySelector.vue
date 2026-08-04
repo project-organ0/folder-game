@@ -12,7 +12,7 @@ defineEmits(['select']);
     <div class="start-action">
       <button v-for="(info, level) in difficulties" :key="level" @click="$emit('select', level)">
         <span class="level-name">파일 정리 시작</span>
-        <span class="level-info">{{ info.description }} · 제한시간 60초</span>
+        <span class="level-info">한 화면 집중 모드 · 제한시간 60초</span>
       </button>
     </div>
     <p class="tip">TIP · 누가 오면 <kbd>ESC</kbd>를 누르세요</p>

@@ -145,7 +145,7 @@ onBeforeUnmount(() => {
       <span class="merged-folder"><i></i><b>✓</b></span>
       <strong>{{ mergeEffect.project }} 정리 완료</strong>
     </div>
-    <div class="file-grid" :style="{ gridTemplateColumns: `repeat(${cols}, 82px)` }">
+    <div class="file-grid" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }">
       <div
         v-for="(apple, index) in apples"
         :key="index"
@@ -159,9 +159,9 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.file-grid-wrapper { position: relative; width: 100%; min-height: 360px; touch-action:none; user-select:none; -webkit-user-select:none; }
-.file-grid { display: grid; gap: 8px 4px; align-content: start; padding: 18px; }
-.file-wrapper { width: 82px; height: 76px; }
+.file-grid-wrapper { position:relative; width:100%; min-height:0; flex:1; overflow:hidden; touch-action:none; user-select:none; -webkit-user-select:none; }
+.file-grid { width:100%; height:100%; display:grid; gap:4px; padding:12px; }
+.file-wrapper { min-width:0; min-height:0; }
 .drag-box {
   position: fixed;
   border: 1px solid #0078d7;
@@ -181,6 +181,6 @@ onBeforeUnmount(() => {
 @keyframes folder-pop { 0% { opacity:0; transform:scale(.2) rotate(-8deg); } 58% { opacity:1; transform:scale(1.14) rotate(2deg); } 100% { opacity:1; transform:scale(1) rotate(0); } }
 @keyframes merge-label { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
 @media (max-width: 760px) {
-  .file-grid { grid-template-columns: repeat(3, 82px) !important; justify-content: center; padding-inline: 8px; }
+  .file-grid { gap:2px; padding:6px 4px; }
 }
 </style>

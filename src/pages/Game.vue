@@ -70,9 +70,10 @@ const makeBoard = (boardCols, boardRows) => {
 };
 
 const selectDifficulty = (level) => {
+  const compactLayout = window.matchMedia('(max-width: 760px)').matches;
   currentDifficulty.value = level;
-  cols.value = difficulties[level].cols;
-  rows.value = difficulties[level].rows;
+  cols.value = compactLayout ? 6 : difficulties[level].cols;
+  rows.value = compactLayout ? 6 : difficulties[level].rows;
   files.value = makeBoard(cols.value, rows.value);
   score.value = 0;
   clearedFiles.value = 0;
@@ -83,7 +84,7 @@ const selectDifficulty = (level) => {
   runEnded.value = false;
   runNumber.value += 1;
   if (runNumber.value > 1) sendGameLabEvent('game_restarted', { runNumber: runNumber.value });
-  sendGameLabEvent('game_run_started', { runNumber: runNumber.value, difficulty: level });
+  sendGameLabEvent('game_run_started', { runNumber: runNumber.value, difficulty: level, layout: compactLayout ? 'mobile' : 'desktop', fileCount: files.value.length });
   startTimer();
 };
 
@@ -264,7 +265,7 @@ onBeforeUnmount(() => {
 .side-title { padding: 0 10px 8px; font-size: 11px; color: #666; text-transform: uppercase; }.side-title.space { margin-top: 18px; }
 .side-item { padding: 8px 10px; font-size: 12px; border-radius: 3px; }.side-item span { margin-right: 7px; }.side-item.active { background: #dbeaf8; }
 .boss-hint { margin: 28px 8px 0; padding: 10px; display: flex; align-items: center; gap: 6px; border: 1px solid #ddd; color: #555; font-size: 11px; background: white; }
-.main-pane { flex: 1; overflow: auto; position: relative; }
+.main-pane { flex: 1; min-width:0; min-height:0; overflow:hidden; position:relative; display:flex; flex-direction:column; }
 .command-bar { position: sticky; top: 0; z-index: 10; min-height: 42px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5e5; background: rgba(255,255,255,.96); font-size: 12px; }.command-bar b { color: #0067b8; }
 .game-stats { display:flex; align-items:center; gap:12px; }.game-stats strong { font-size:12px; }.combo { padding:3px 7px; border-radius:10px; background:#fff1b8; color:#8a5700; font-size:10px; font-weight:700; animation:combo-pop .2s ease; }
 .statusbar { min-height: 30px; padding: 0 12px; display: flex; align-items: center; gap: 18px; border-top: 1px solid #ddd; background: #f7f7f7; font-size: 11px; }.statusbar button { padding: 2px 9px; font-size: 11px; }.statusbar button:not(.sound-button) { margin-left:0; }.statusbar span:nth-child(2) { margin-right:auto; }.sound-button { display:grid; place-items:center; padding:3px 6px !important; border:0; background:transparent; color:#444; }

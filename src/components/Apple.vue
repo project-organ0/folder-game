@@ -159,4 +159,13 @@ const onAnimationEnd = () => {
   72% { opacity:1; filter:brightness(1.15); }
   100% { transform:translate(var(--merge-x, 0),var(--merge-y, 36px)) scale(.08) rotate(16deg); opacity:0; filter:brightness(1.3); }
 }
+
+@media (max-width: 760px) {
+  .file-item { gap:3px; padding:3px 1px 2px; }
+  .file-icon { width:36px; height:38px; }
+  .file-icon__preview { inset:7px 6px 9px; }
+  .file-icon__badge { left:-3px; width:16px; height:16px; font-size:9px; }
+  .file-icon__extension { font-size:5px; }
+  .file-name { max-width:58px; min-height:20px; font-size:8px; line-height:10px; }
+}
 </style>
