@@ -73,7 +73,7 @@ const selectDifficulty = (level) => {
   const compactLayout = window.matchMedia('(max-width: 760px)').matches;
   currentDifficulty.value = level;
   cols.value = compactLayout ? 6 : difficulties[level].cols;
-  rows.value = compactLayout ? 6 : difficulties[level].rows;
+  rows.value = compactLayout ? 4 : difficulties[level].rows;
   files.value = makeBoard(cols.value, rows.value);
   score.value = 0;
   clearedFiles.value = 0;
@@ -207,7 +207,7 @@ onBeforeUnmount(() => {
 
           <template v-else>
             <div class="command-bar">
-              <span><b>✓</b> 같은 프로젝트의 기획서 · 시안 · 견적서를 묶으세요</span>
+              <span><b>1 · 2 · 3</b> 같은 프로젝트 파일을 하나씩 눌러 합치세요</span>
               <div class="game-stats"><span v-if="combo > 1" class="combo">{{ combo }} COMBO</span><strong>{{ score.toLocaleString() }}점</strong><b>{{ timeLeft }}</b>초</div>
             </div>
             <AppleGrid
@@ -269,12 +269,12 @@ onBeforeUnmount(() => {
 .command-bar { position: sticky; top: 0; z-index: 10; min-height: 42px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5e5; background: rgba(255,255,255,.96); font-size: 12px; }.command-bar b { color: #0067b8; }
 .game-stats { display:flex; align-items:center; gap:12px; }.game-stats strong { font-size:12px; }.combo { padding:3px 7px; border-radius:10px; background:#fff1b8; color:#8a5700; font-size:10px; font-weight:700; animation:combo-pop .2s ease; }
 .statusbar { min-height: 30px; padding: 0 12px; display: flex; align-items: center; gap: 18px; border-top: 1px solid #ddd; background: #f7f7f7; font-size: 11px; }.statusbar button { padding: 2px 9px; font-size: 11px; }.statusbar button:not(.sound-button) { margin-left:0; }.statusbar span:nth-child(2) { margin-right:auto; }.sound-button { display:grid; place-items:center; padding:3px 6px !important; border:0; background:transparent; color:#444; }
-.toast { position:fixed; z-index:3000; left:50%; top:92px; transform:translateX(-50%); padding:10px 16px; border:1px solid; border-radius:3px; box-shadow:0 8px 22px rgba(0,0,0,.2); background:#fff; font-size:12px; font-weight:600; }.toast.success { border-color:#18864b; color:#116c3a; background:#f2fff7; }.toast.error { border-color:#c42b1c; color:#a4261c; background:#fff5f3; }
+.toast { position:fixed; z-index:3000; left:50%; bottom:52px; transform:translateX(-50%); padding:11px 17px; border:1px solid; border-radius:4px; box-shadow:0 8px 22px rgba(0,0,0,.22); background:#fff; font-size:12px; font-weight:700; white-space:nowrap; }.toast.success { border-color:#18864b; color:#116c3a; background:#f2fff7; }.toast.error { border-color:#c42b1c; color:#8f1d13; background:#fff5f3; }
 .toast-enter-active,.toast-leave-active { transition:all .18s ease; }.toast-enter-from,.toast-leave-to { opacity:0; transform:translate(-50%,-8px); }
 @keyframes combo-pop { from { transform:scale(.7); } to { transform:scale(1); } }
 .boss-overlay { position: fixed; inset: 0; z-index: 5000; padding: 20px; background: #f3f3f3; font-family: Calibri, Arial, sans-serif; overflow: hidden; }
 .sheet-title { padding: 13px; background: #217346; color: white; font-size: 18px; }.formula { margin: 10px 0; padding: 8px; border: 1px solid #bbb; background: white; }
 table { width: 100%; border-collapse: collapse; background: white; font-size: 12px; } th,td { height: 24px; border: 1px solid #d5d5d5; text-align: left; padding: 0 7px; } thead th,tbody th { background: #eee; text-align: center; font-weight: normal; }
 .overlay-tip { position: fixed; right: 18px; bottom: 14px; padding: 8px 12px; border-radius: 4px; background: #222; color: white; font-size: 11px; opacity: .8; }
-@media (max-width: 760px) { .desktop-shell { padding: 0; }.explorer-window { min-height: 100vh; border: 0; }.sidebar { display:none; }.search-box { display:none; }.command-bar { align-items:flex-start; flex-direction:column; gap:5px; padding-block:8px; }.game-stats { width:100%; justify-content:space-between; }.window-actions button { width: 38px; }.toast { top:105px; width:max-content; max-width:calc(100vw - 30px); } }
+@media (max-width: 760px) { .desktop-shell { padding: 0; }.explorer-window { min-height: 100vh; border: 0; }.sidebar { display:none; }.search-box { display:none; }.command-bar { align-items:flex-start; flex-direction:column; gap:5px; padding-block:8px; }.game-stats { width:100%; justify-content:space-between; }.window-actions button { width: 38px; }.toast { bottom:42px; width:max-content; max-width:calc(100vw - 30px); white-space:normal; text-align:center; } }
 </style>

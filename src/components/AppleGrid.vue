@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, onBeforeUnmount } from 'vue';
 import Apple from '@/components/Apple.vue';
 
 const props = defineProps({
@@ -12,14 +12,13 @@ const props = defineProps({
 const emit = defineEmits(['match', 'selection-change']);
 const apples = ref([]);
 const appleRefs = ref([]);
-const selecting = ref(false);
-const dragBoxStyle = ref({ display: 'none' });
-const start = ref({ x: 0, y: 0 });
 const selectionCount = ref(0);
 const selectionProject = ref('');
 const selectionReady = ref(false);
 const mergeEffect = ref(null);
 const mergeTimer = ref(null);
+const selectionTimer = ref(null);
+const resolving = ref(false);
 
 watch(() => props.initialApples, (items) => {
   apples.value = [...items];
@@ -30,37 +29,7 @@ const setAppleRef = (el, index) => {
   if (el) appleRefs.value[index] = el;
 };
 
-const onPointerDown = (event) => {
-  if (props.gameOver || event.button !== 0) return;
-  event.preventDefault();
-  start.value = { x: event.clientX, y: event.clientY };
-  selecting.value = true;
-  apples.value.forEach((item) => { item.selected = false; });
-  selectionCount.value = 0;
-  selectionProject.value = '';
-  selectionReady.value = false;
-};
-
-const onPointerMove = (event) => {
-  if (!selecting.value || props.gameOver) return;
-  const x = Math.min(start.value.x, event.clientX);
-  const y = Math.min(start.value.y, event.clientY);
-  const width = Math.abs(start.value.x - event.clientX);
-  const height = Math.abs(start.value.y - event.clientY);
-
-  dragBoxStyle.value = {
-    display: 'block', left: `${x}px`, top: `${y}px`,
-    width: `${width}px`, height: `${height}px`,
-  };
-
-  appleRefs.value.forEach((el, index) => {
-    if (!el || apples.value[index].hidden) return;
-    const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    apples.value[index].selected = cx >= x && cx <= x + width && cy >= y && cy <= y + height;
-  });
-
+const updateSelection = () => {
   const selected = apples.value.filter((item) => item.selected && !item.hidden);
   selectionCount.value = selected.length;
   const projects = new Set(selected.map((item) => item.project));
@@ -70,11 +39,7 @@ const onPointerMove = (event) => {
   emit('selection-change', { project: selectionProject.value, count: selectionCount.value, ready: selectionReady.value });
 };
 
-const onPointerUp = () => {
-  if (!selecting.value) return;
-  selecting.value = false;
-  dragBoxStyle.value = { display: 'none' };
-
+const resolveSelection = () => {
   const selected = apples.value.filter((item) => item.selected && !item.hidden);
   const projects = new Set(selected.map((item) => item.project));
   const types = new Set(selected.map((item) => item.type));
@@ -114,26 +79,32 @@ const onPointerUp = () => {
   selectionCount.value = 0;
   selectionProject.value = '';
   selectionReady.value = false;
+  resolving.value = false;
   emit('selection-change', { project: '', count: 0, ready: false });
 };
 
-onMounted(() => {
-  window.addEventListener('pointerup', onPointerUp);
-  window.addEventListener('pointermove', onPointerMove);
-});
+const toggleFile = (index) => {
+  const item = apples.value[index];
+  if (props.gameOver || resolving.value || !item || item.hidden) return;
+  item.selected = !item.selected;
+  updateSelection();
+  if (selectionCount.value === 3) {
+    resolving.value = true;
+    clearTimeout(selectionTimer.value);
+    selectionTimer.value = setTimeout(resolveSelection, 150);
+  }
+};
 
 onBeforeUnmount(() => {
   clearTimeout(mergeTimer.value);
-  window.removeEventListener('pointerup', onPointerUp);
-  window.removeEventListener('pointermove', onPointerMove);
+  clearTimeout(selectionTimer.value);
 });
 </script>
 
 <template>
-  <div class="file-grid-wrapper" @pointerdown="onPointerDown">
-    <div class="drag-box" :style="dragBoxStyle"></div>
-    <div v-if="selecting && selectionCount" :class="['set-badge', { ready: selectionReady, mixed: !selectionProject }]">
-      {{ selectionProject || '프로젝트 혼합' }} <small>{{ selectionCount }} / 3</small>
+  <div class="file-grid-wrapper">
+    <div v-if="selectionCount" :class="['set-badge', { ready: selectionReady, mixed: !selectionProject }]">
+      {{ selectionProject || '서로 다른 프로젝트' }} <small>{{ selectionCount }} / 3 선택</small>
     </div>
     <div
       v-if="mergeEffect"
@@ -150,7 +121,13 @@ onBeforeUnmount(() => {
         v-for="(apple, index) in apples"
         :key="index"
         :ref="(el) => setAppleRef(el, index)"
-        class="file-wrapper"
+        :class="['file-wrapper', { unavailable: apple.hidden }]"
+        role="button"
+        :tabindex="apple.hidden ? -1 : 0"
+        :aria-label="`${apple.project} ${apple.label} ${apple.selected ? '선택 해제' : '선택'}`"
+        @click="toggleFile(index)"
+        @keydown.enter.prevent="toggleFile(index)"
+        @keydown.space.prevent="toggleFile(index)"
       >
         <Apple v-bind="apple" />
       </div>
@@ -159,16 +136,12 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.file-grid-wrapper { position:relative; width:100%; min-height:0; flex:1; overflow:hidden; touch-action:none; user-select:none; -webkit-user-select:none; }
+.file-grid-wrapper { position:relative; width:100%; min-height:0; flex:1; overflow:hidden; user-select:none; -webkit-user-select:none; }
 .file-grid { width:100%; height:100%; display:grid; gap:4px; padding:12px; }
-.file-wrapper { min-width:0; min-height:0; }
-.drag-box {
-  position: fixed;
-  border: 1px solid #0078d7;
-  background: rgba(0, 120, 215, 0.12);
-  z-index: 1000;
-  pointer-events: none;
-}
+.file-wrapper { min-width:0; min-height:0; cursor:pointer; border-radius:4px; outline:none; -webkit-tap-highlight-color:transparent; }
+.file-wrapper:hover { background:#f4f8fc; }
+.file-wrapper:focus-visible { box-shadow:inset 0 0 0 2px #0078d4; }
+.file-wrapper.unavailable { pointer-events:none; }
 .set-badge { position:fixed; z-index:1001; right:24px; bottom:48px; min-width:110px; padding:9px 13px; border:1px solid #777; border-radius:3px; background:#fff; box-shadow:0 5px 18px rgba(0,0,0,.2); color:#333; font-size:14px; font-weight:700; text-align:center; pointer-events:none; }
 .set-badge small { display:block; margin-top:3px; color:#888; font-size:10px; font-weight:400; }.set-badge.ready { border-color:#168342; color:#168342; background:#f1fff5; }.set-badge.mixed { border-color:#c42b1c; color:#c42b1c; background:#fff4f2; }
 .merge-effect { position:fixed; z-index:1500; width:170px; height:130px; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; pointer-events:none; }

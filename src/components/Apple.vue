@@ -14,7 +14,10 @@
       <span class="file-icon__badge">{{ type === 'brief' ? 'W' : type === 'asset' ? 'P' : 'X' }}</span>
       <span class="file-icon__extension">{{ extension }}</span>
     </div>
-    <span class="file-name">{{ project }}_{{ label }}_{{ suffix }}</span>
+    <span class="file-name">
+      <strong class="project-name">{{ project }}</strong>
+      <small class="file-detail">{{ label }} · {{ suffix }}</small>
+    </span>
   </div>
 </template>
 
@@ -148,6 +151,8 @@ const onAnimationEnd = () => {
   text-align: center;
   overflow-wrap: anywhere;
 }
+.project-name { display:block; overflow:hidden; color:#172332; font-size:11px; line-height:12px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+.file-detail { display:block; overflow:hidden; margin-top:1px; color:#68727d; font-size:8px; line-height:10px; text-overflow:ellipsis; white-space:nowrap; }
 
 .file-item.deleting {
   z-index: 1200;
@@ -166,6 +171,8 @@ const onAnimationEnd = () => {
   .file-icon__preview { inset:7px 6px 9px; }
   .file-icon__badge { left:-3px; width:16px; height:16px; font-size:9px; }
   .file-icon__extension { font-size:5px; }
-  .file-name { max-width:58px; min-height:20px; font-size:8px; line-height:10px; }
+  .file-name { max-width:58px; min-height:22px; }
+  .project-name { font-size:10px; line-height:11px; }
+  .file-detail { font-size:7px; line-height:9px; }
 }
 </style>

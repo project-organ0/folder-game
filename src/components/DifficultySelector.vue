@@ -8,11 +8,11 @@ defineEmits(['select']);
     <div class="hero-folder"><span></span></div>
     <p class="eyebrow">QUICK ACCESS</p>
     <h1>퇴근 전 파일정리</h1>
-    <p class="description">같은 프로젝트의 <b>기획서 · 시안 · 견적서</b>를 찾아<br />하나의 업무 세트로 정리하세요.</p>
+    <p class="description">같은 프로젝트의 <b>기획서 · 시안 · 견적서</b>를<br />하나씩 눌러 업무 세트로 합치세요.</p>
     <div class="start-action">
       <button v-for="(info, level) in difficulties" :key="level" @click="$emit('select', level)">
         <span class="level-name">파일 정리 시작</span>
-        <span class="level-info">한 화면 집중 모드 · 제한시간 60초</span>
+        <span class="level-info">파일 3개 탭 · 제한시간 60초</span>
       </button>
     </div>
     <p class="tip">TIP · 누가 오면 <kbd>ESC</kbd>를 누르세요</p>
