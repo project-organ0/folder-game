@@ -6,9 +6,7 @@ import DifficultySelector from '@/components/DifficultySelector.vue';
 import GameOverModal from '@/components/GameOverModal.vue';
 
 const difficulties = {
-  '한가한 날': { cols: 6, rows: 4, description: '업무 세트 8개' },
-  '평범한 날': { cols: 9, rows: 6, description: '업무 세트 18개' },
-  '월요일': { cols: 12, rows: 6, description: '업무 세트 24개' },
+  '어려움': { cols: 12, rows: 6, description: '업무 세트 24개' },
 };
 
 const projectNames = ['ATLAS', 'NOVA', 'LUMEN', 'ORBIT', 'MINT', 'WAVE', 'PIXEL', 'NAN', 'COMET', 'DELTA', 'PLUTO', 'FRAME'];

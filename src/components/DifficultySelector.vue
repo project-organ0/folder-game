@@ -9,10 +9,10 @@ defineEmits(['select']);
     <p class="eyebrow">QUICK ACCESS</p>
     <h1>퇴근 전 파일정리</h1>
     <p class="description">같은 프로젝트의 <b>기획서 · 시안 · 견적서</b>를 찾아<br />하나의 업무 세트로 정리하세요.</p>
-    <div class="levels">
+    <div class="start-action">
       <button v-for="(info, level) in difficulties" :key="level" @click="$emit('select', level)">
-        <span class="level-name">{{ level }}</span>
-        <span class="level-info">{{ info.description }} 정리하기</span>
+        <span class="level-name">파일 정리 시작</span>
+        <span class="level-info">{{ info.description }} · 제한시간 60초</span>
       </button>
     </div>
     <p class="tip">TIP · 누가 오면 <kbd>ESC</kbd>를 누르세요</p>
@@ -26,9 +26,9 @@ defineEmits(['select']);
 .eyebrow { margin: 0 0 8px; color: #0078d4; font-size: 10px; font-weight: 700; letter-spacing: .18em; }
 h1 { margin: 0; color: #202020; font-size: 30px; font-weight: 600; }
 .description { margin: 14px 0 30px; color: #666; font-size: 14px; line-height: 1.7; }.description b { color:#0078d4; }
-.levels { max-width: 560px; margin: auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-.levels button { padding: 15px 12px; display:flex; flex-direction:column; gap:5px; border:1px solid #bbb; border-radius:2px; background:#fff; color:#222; }
-.levels button:hover { border-color:#0078d4; background:#f2f8fd; }.level-name { font-size:14px; font-weight:600; }.level-info { color:#777; font-size:10px; }
+.start-action { max-width: 320px; margin: auto; }
+.start-action button { width:100%; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:14px; border:1px solid #0067b8; border-radius:3px; background:#0078d4; color:#fff; box-shadow:0 5px 14px rgba(0,103,184,.2); }
+.start-action button:hover { background:#006cbe; }.start-action button:active { transform:translateY(1px); }.level-name { font-size:14px; font-weight:700; }.level-info { color:rgba(255,255,255,.78); font-size:10px; }
 .tip { margin-top:28px; color:#777; font-size:11px; } kbd { padding:2px 6px; border:1px solid #aaa; border-bottom-width:2px; border-radius:3px; background:#fafafa; color:#333; }
-@media (max-width:600px) { .levels { grid-template-columns:1fr; max-width:300px; }.welcome { padding-top:35px; } }
+@media (max-width:600px) { .start-action { max-width:300px; }.welcome { padding-top:35px; } }
 </style>
