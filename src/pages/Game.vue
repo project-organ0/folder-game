@@ -46,14 +46,21 @@ const sendGameLabEvent = (eventName, metadata = {}) => {
   window.opener.postMessage({ source: 'game-lab-game', eventName, metadata }, '*');
 };
 
+const shuffle = (items) => {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+};
+
 const makeBoard = (boardCols, boardRows) => {
   const setCount = (boardCols * boardRows) / requiredFiles.length;
-  return Array.from({ length: setCount }, (_, setIndex) => {
+  const board = Array.from({ length: setCount }, (_, setIndex) => {
     const cycle = Math.floor(setIndex / projectNames.length) + 1;
     const project = `${projectNames[setIndex % projectNames.length]}${cycle > 1 ? `-${cycle}` : ''}`;
-    return [...requiredFiles]
-      .sort(() => Math.random() - 0.5)
-      .map((file, fileIndex) => ({
+    return requiredFiles.map((file, fileIndex) => ({
         ...file,
         project,
         selected: false,
@@ -61,6 +68,7 @@ const makeBoard = (boardCols, boardRows) => {
         suffix: suffixes[(setIndex + fileIndex) % suffixes.length],
       }));
   }).flat();
+  return shuffle(board);
 };
 
 const selectDifficulty = (level) => {
