@@ -150,10 +150,13 @@ const onAnimationEnd = () => {
 }
 
 .file-item.deleting {
-  animation: recycle 0.38s cubic-bezier(.4, 0, .2, 1) forwards;
+  z-index: 1200;
+  animation: recycle 0.46s var(--merge-delay, 0ms) cubic-bezier(.55, 0, .2, 1) forwards;
 }
 
 @keyframes recycle {
-  to { transform: scale(0.2) translateY(40px); opacity: 0; }
+  0% { transform:translate(0,0) scale(1) rotate(0); opacity:1; filter:brightness(1); }
+  72% { opacity:1; filter:brightness(1.15); }
+  100% { transform:translate(var(--merge-x, 0),var(--merge-y, 36px)) scale(.08) rotate(16deg); opacity:0; filter:brightness(1.3); }
 }
 </style>
