@@ -11,16 +11,16 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: '폴더를 드래그해 정리하는 숫자 퍼즐 게임, 퇴근 전 파일정리.',
+      content: '같은 프로젝트의 업무 파일을 찾아 묶는 드래그 퍼즐 게임, 퇴근 전 파일정리.',
     },
     {
       name: 'keywords',
-      content: '폴더 게임, 숫자 게임, 10 만들기, 퍼즐 게임, 파일 정리 게임',
+      content: '파일 정리 게임, 업무 퍼즐, 드래그 퍼즐, 프로젝트 분류 게임',
     },
     { property: 'og:title', content: '퇴근 전 파일정리' },
     {
       property: 'og:description',
-      content: '업무 중인 척 폴더를 정리하는 숫자 퍼즐 게임.',
+      content: '업무 중인 척 프로젝트별 파일 세트를 정리하는 퍼즐 게임.',
     },
     { property: 'og:type', content: 'website' },
     { property: 'og:url', content: 'https://github.com/project-organ0/folder-game' },

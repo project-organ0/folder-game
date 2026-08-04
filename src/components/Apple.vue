@@ -4,11 +4,10 @@
     :class="['file-item', { selected, deleting: shouldAnimateHide }]"
     @animationend="onAnimationEnd"
   >
-    <div class="folder-icon" aria-hidden="true">
-      <div class="folder-tab"></div>
-      <div class="folder-body"></div>
+    <div :class="['file-icon', `type-${type}`]" aria-hidden="true">
+      <span>{{ extension }}</span>
     </div>
-    <span class="file-name">{{ label }}_{{ number }}</span>
+    <span class="file-name">{{ project }}_{{ label }}_{{ suffix }}</span>
   </div>
 </template>
 
@@ -18,8 +17,11 @@ import { ref, watch } from 'vue';
 const props = defineProps({
   selected: Boolean,
   hidden: Boolean,
-  number: Number,
+  project: { type: String, default: 'PROJECT' },
+  type: { type: String, default: 'brief' },
   label: { type: String, default: '업무자료' },
+  extension: { type: String, default: 'FILE' },
+  suffix: { type: String, default: '최종' },
 });
 
 const visible = ref(true);
@@ -54,40 +56,41 @@ const onAnimationEnd = () => {
   background: rgba(0, 120, 215, 0.16);
   border-color: rgba(0, 120, 215, 0.48);
 }
-.file-item.selected .folder-icon { transform:translateY(-2px); }
+.file-item.selected .file-icon { transform:translateY(-2px); }
 
-.folder-icon {
+.file-icon {
   position: relative;
-  width: 42px;
-  height: 34px;
+  width: 36px;
+  height: 38px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding-bottom:5px;
+  box-sizing:border-box;
+  border:1px solid #a8a8a8;
+  border-radius:2px;
+  background:linear-gradient(135deg,#fff 0 72%,#e8e8e8 73%);
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
   transition:transform .12s ease;
 }
-
-.folder-tab {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 19px;
-  height: 9px;
-  background: #e6aa25;
-  border-radius: 3px 3px 0 0;
+.file-icon:before {
+  content:'';
+  position:absolute;
+  left:4px;
+  right:4px;
+  top:7px;
+  height:13px;
+  border-radius:1px;
+  background:#3f74b5;
 }
-
-.folder-body {
-  position: absolute;
-  inset: 8px 1px 1px;
-  border-radius: 3px;
-  background: linear-gradient(145deg, #ffd76a 0%, #f2b934 68%, #df9e1d 100%);
-  border: 1px solid #d99b22;
-}
-
-.folder-body::after {
-  content: '';
-  position: absolute;
-  inset: 4px 3px 3px;
-  border-radius: 2px;
-  border-top: 1px solid rgba(255, 255, 255, 0.7);
+.file-icon.type-asset:before { background:#a55ac7; }
+.file-icon.type-budget:before { background:#36a067; }
+.file-icon span {
+  position:relative;
+  z-index:1;
+  font-size:7px;
+  font-weight:800;
+  color:#555;
 }
 
 .file-name {

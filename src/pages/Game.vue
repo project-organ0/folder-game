@@ -6,12 +6,18 @@ import DifficultySelector from '@/components/DifficultySelector.vue';
 import GameOverModal from '@/components/GameOverModal.vue';
 
 const difficulties = {
-  '한가한 날': { cols: 7, rows: 4, description: '파일 28개' },
-  '평범한 날': { cols: 10, rows: 6, description: '파일 60개' },
-  '월요일': { cols: 12, rows: 7, description: '파일 84개' },
+  '한가한 날': { cols: 6, rows: 4, description: '업무 세트 8개' },
+  '평범한 날': { cols: 9, rows: 6, description: '업무 세트 18개' },
+  '월요일': { cols: 12, rows: 6, description: '업무 세트 24개' },
 };
 
-const folderNames = ['회의록_진짜', '예산안_수정', '업무자료', '백업_열지마', '보고서_최종', '기획서_컨펌전', '영수증', '참고자료', '최종_진짜최종', '공유문서', '팀장님요청', '새 폴더 (2)'];
+const projectNames = ['ATLAS', 'NOVA', 'LUMEN', 'ORBIT', 'MINT', 'WAVE', 'PIXEL', 'NAN', 'COMET', 'DELTA', 'PLUTO', 'FRAME'];
+const requiredFiles = [
+  { type: 'brief', label: '기획서', extension: 'DOCX' },
+  { type: 'asset', label: '시안', extension: 'PNG' },
+  { type: 'budget', label: '견적서', extension: 'XLSX' },
+];
+const suffixes = ['최종', '검토', 'v2', '수정', '진짜최종'];
 const files = ref([]);
 const cols = ref(0);
 const rows = ref(0);
@@ -29,17 +35,32 @@ const maxTime = 60;
 const timer = ref(null);
 const username = ref('');
 const currentDifficulty = ref('');
+const runNumber = ref(0);
+const runEnded = ref(false);
 
 const clearedCount = computed(() => clearedFiles.value);
 const storageSaved = computed(() => (clearedFiles.value * 12.4).toFixed(1));
 
+const sendGameLabEvent = (eventName, metadata = {}) => {
+  if (!window.opener) return;
+  window.opener.postMessage({ source: 'game-lab-game', eventName, metadata }, '*');
+};
+
 const makeBoard = (boardCols, boardRows) => {
-  return Array.from({ length: boardCols * boardRows }, (_, index) => ({
-    selected: false,
-    hidden: false,
-    number: Math.ceil(Math.random() * 9),
-    label: folderNames[index % folderNames.length],
-  }));
+  const setCount = (boardCols * boardRows) / requiredFiles.length;
+  return Array.from({ length: setCount }, (_, setIndex) => {
+    const cycle = Math.floor(setIndex / projectNames.length) + 1;
+    const project = `${projectNames[setIndex % projectNames.length]}${cycle > 1 ? `-${cycle}` : ''}`;
+    return [...requiredFiles]
+      .sort(() => Math.random() - 0.5)
+      .map((file, fileIndex) => ({
+        ...file,
+        project,
+        selected: false,
+        hidden: false,
+        suffix: suffixes[(setIndex + fileIndex) % suffixes.length],
+      }));
+  }).flat();
 };
 
 const selectDifficulty = (level) => {
@@ -53,6 +74,10 @@ const selectDifficulty = (level) => {
   timeLeft.value = maxTime;
   gameStarted.value = true;
   gameOver.value = false;
+  runEnded.value = false;
+  runNumber.value += 1;
+  if (runNumber.value > 1) sendGameLabEvent('game_restarted', { runNumber: runNumber.value });
+  sendGameLabEvent('game_run_started', { runNumber: runNumber.value, difficulty: level });
   startTimer();
 };
 
@@ -80,11 +105,18 @@ const showToast = (message, type) => {
   toastTimer.value = setTimeout(() => { toast.value = null; }, 900);
 };
 
-const handleMatch = ({ valid, sum, count, remaining }) => {
+const endRun = (endReason, metadata = {}) => {
+  if (runEnded.value) return;
+  runEnded.value = true;
+  sendGameLabEvent('game_run_ended', { runNumber: runNumber.value, endReason, score: score.value, clearedFiles: clearedFiles.value, ...metadata });
+  if (endReason === 'completed') sendGameLabEvent('game_completed', { runNumber: runNumber.value, score: score.value });
+};
+
+const handleMatch = ({ valid, reason, project, count, remaining }) => {
   if (!valid) {
     combo.value = 0;
     playTone(false);
-    showToast(`합계 ${sum} · 이 작업을 수행할 수 없습니다`, 'error');
+    showToast(reason === 'mixed' ? '서로 다른 프로젝트가 섞였습니다' : '기획서 · 시안 · 견적서가 모두 필요합니다', 'error');
     return;
   }
   combo.value += 1;
@@ -93,9 +125,11 @@ const handleMatch = ({ valid, sum, count, remaining }) => {
   score.value += earned;
   timeLeft.value = Math.min(maxTime, timeLeft.value + 1);
   playTone(true);
-  showToast(`${count}개 정리 완료 · +${earned}점${combo.value > 1 ? ` · ${combo.value} COMBO` : ''}`, 'success');
+  showToast(`${project} 세트 정리 · +${earned}점${combo.value > 1 ? ` · ${combo.value} COMBO` : ''}`, 'success');
+  sendGameLabEvent('game_progress', { runNumber: runNumber.value, project, score: score.value, clearedFiles: clearedFiles.value, remaining, progress: clearedFiles.value / files.value.length });
   if (remaining === 0) {
     clearInterval(timer.value);
+    endRun('completed', { progress: 1 });
     setTimeout(() => { gameOver.value = true; }, 450);
   }
 };
@@ -107,12 +141,14 @@ const startTimer = () => {
     timeLeft.value -= 1;
     if (timeLeft.value <= 0) {
       clearInterval(timer.value);
+      endRun('game_over', { progress: clearedFiles.value / files.value.length, timeLeft: 0 });
       gameOver.value = true;
     }
   }, 1000);
 };
 
 const resetGame = () => {
+  if (gameStarted.value && !gameOver.value) endRun('voluntary_quit', { progress: clearedFiles.value / Math.max(1, files.value.length) });
   clearInterval(timer.value);
   gameStarted.value = false;
   gameOver.value = false;
@@ -164,7 +200,7 @@ onBeforeUnmount(() => {
 
           <template v-else>
             <div class="command-bar">
-              <span><b>✓</b> 이름 숫자의 합이 10인 폴더를 드래그하세요</span>
+              <span><b>✓</b> 같은 프로젝트의 기획서 · 시안 · 견적서를 묶으세요</span>
               <div class="game-stats"><span v-if="combo > 1" class="combo">{{ combo }} COMBO</span><strong>{{ score.toLocaleString() }}점</strong><b>{{ timeLeft }}</b>초</div>
             </div>
             <AppleGrid

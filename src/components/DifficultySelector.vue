@@ -8,7 +8,7 @@ defineEmits(['select']);
     <div class="hero-folder"><span></span></div>
     <p class="eyebrow">QUICK ACCESS</p>
     <h1>퇴근 전 파일정리</h1>
-    <p class="description">폴더명 끝 숫자의 합이 <b>10</b>이 되도록 드래그해서<br />회사 PC를 말끔하게 정리하세요.</p>
+    <p class="description">같은 프로젝트의 <b>기획서 · 시안 · 견적서</b>를 찾아<br />하나의 업무 세트로 정리하세요.</p>
     <div class="levels">
       <button v-for="(info, level) in difficulties" :key="level" @click="$emit('select', level)">
         <span class="level-name">{{ level }}</span>
